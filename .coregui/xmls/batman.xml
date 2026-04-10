@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<scenario>
+  <networks>
+    <network id="36" name="wlan1" icon="" canvas="1" type="WIRELESS_LAN">
+      <position x="19.165218353271484" y="29.000486373901367" lat="47.57890280713894" lon="-122.13206597262142" alt="2.0"/>
+    </network>
+  </networks>
+  <devices>
+    <device id="2" name="n1" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
+      <position x="400.0" y="300.0" lat="47.57643944344373" lon="-122.12693432704526" alt="2.0"/>
+      <services>
+        <service name="IPForward"/>
+        <service name="DefaultRoute"/>
+      </services>
+    </device>
+    <device id="3" name="n2" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
+      <position x="100.0" y="400.0" lat="47.57553042224562" lon="-122.13097674582379" alt="2.0"/>
+      <services>
+        <service name="IPForward"/>
+        <service name="DefaultRoute"/>
+      </services>
+    </device>
+    <device id="4" name="n3" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
+      <position x="700.0" y="200.0" lat="47.57734844886106" lon="-122.12289190826672" alt="2.0"/>
+      <services>
+        <service name="IPForward"/>
+        <service name="DefaultRoute"/>
+      </services>
+    </device>
+    <device id="1" name="n0" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
+      <position x="100.0" y="300.0" lat="47.57643944344373" lon="-122.13097674582379" alt="2.0"/>
+      <services>
+        <service name="IPForward"/>
+        <service name="DefaultRoute"/>
+      </services>
+    </device>
+  </devices>
+  <links>
+    <link node1="2" node2="36">
+      <iface1 id="0" name="eth0" mac="00:00:00:aa:00:00" ip4="10.0.0.20" ip4_mask="24" ip6="2001::14" ip6_mask="128"/>
+    </link>
+    <link node1="3" node2="36">
+      <iface1 id="0" name="eth0" mac="00:00:00:aa:00:01" ip4="10.0.0.21" ip4_mask="24" ip6="2001::15" ip6_mask="128"/>
+    </link>
+    <link node1="4" node2="36">
+      <iface1 id="0" name="eth0" mac="00:00:00:aa:00:02" ip4="10.0.0.22" ip4_mask="24" ip6="2001::16" ip6_mask="128"/>
+    </link>
+    <link node1="1" node2="36">
+      <iface1 id="0" name="eth0" mac="00:00:00:aa:00:03" ip4="10.0.0.23" ip4_mask="24" ip6="2001::17" ip6_mask="128"/>
+    </link>
+  </links>
+  <mobility_configurations>
+    <mobility_configuration node="36" model="basic_range">
+      <configuration name="range" value="250"/>
+      <configuration name="bandwidth" value="54000000"/>
+      <configuration name="jitter" value="0"/>
+      <configuration name="delay" value="5000"/>
+      <configuration name="error" value="0.0"/>
+      <configuration name="promiscuous" value="0"/>
+    </mobility_configuration>
+    <mobility_configuration node="36" model="ns2script">
+      <configuration name="file" value="/home/zr0x8/.coregui/mobility/demo.scen"/>
+      <configuration name="refresh_ms" value="50"/>
+      <configuration name="loop" value="1"/>
+      <configuration name="autostart" value="0.0"/>
+      <configuration name="map" value=""/>
+      <configuration name="script_start" value=""/>
+      <configuration name="script_pause" value=""/>
+      <configuration name="script_stop" value=""/>
+    </mobility_configuration>
+  </mobility_configurations>
+  <service_configurations>
+    <service name="IPForward" node="2">
+      <templates>
+        <template name="ipforward.sh"><![CDATA[#!/bin/sh
+
+# 1. Bật card vật lý ảo
+ip link set up dev eth0
+
+# 2. Tạo interface bat0 và gắn eth0 vào mạng mesh BATMAN
+batctl if add eth0
+ip link set up dev bat0
+
+# 3. Lấy IP tự động kèm Subnet (VD: 10.0.0.20/32)
+IP_CIDR=$(ip -4 addr show eth0 | grep -w inet | awk '{print $2}')
+
+if [ -n "$IP_CIDR" ]; then
+    # Bóc lấy chỉ mỗi phần IP (VD: 10.0.0.20)
+    IP_ONLY=$(echo $IP_CIDR | cut -d'/' -f1)
+    
+    # Xóa IP cũ có mask sai trên eth0
+    ip addr del $IP_CIDR dev eth0
+    
+    # Gán IP đó sang bat0 với Subnet Mask đúng là /24
+    ip addr add $IP_ONLY/24 dev bat0
+fi]]></template>
+      </templates>
+    </service>
+    <service name="IPForward" node="3">
+      <templates>
+        <template name="ipforward.sh"><![CDATA[#!/bin/sh
+
+# 1. Bật card vật lý ảo
+ip link set up dev eth0
+
+# 2. Tạo interface bat0 và gắn eth0 vào mạng mesh BATMAN
+batctl if add eth0
+ip link set up dev bat0
+
+# 3. Lấy IP tự động kèm Subnet (VD: 10.0.0.20/32)
+IP_CIDR=$(ip -4 addr show eth0 | grep -w inet | awk '{print $2}')
+
+if [ -n "$IP_CIDR" ]; then
+    # Bóc lấy chỉ mỗi phần IP (VD: 10.0.0.20)
+    IP_ONLY=$(echo $IP_CIDR | cut -d'/' -f1)
+    
+    # Xóa IP cũ có mask sai trên eth0
+    ip addr del $IP_CIDR dev eth0
+    
+    # Gán IP đó sang bat0 với Subnet Mask đúng là /24
+    ip addr add $IP_ONLY/24 dev bat0
+fi]]></template>
+      </templates>
+    </service>
+    <service name="IPForward" node="4">
+      <templates>
+        <template name="ipforward.sh"><![CDATA[#!/bin/sh
+
+# 1. Bật card vật lý ảo
+ip link set up dev eth0
+
+# 2. Tạo interface bat0 và gắn eth0 vào mạng mesh BATMAN
+batctl if add eth0
+ip link set up dev bat0
+
+# 3. Lấy IP tự động kèm Subnet (VD: 10.0.0.20/32)
+IP_CIDR=$(ip -4 addr show eth0 | grep -w inet | awk '{print $2}')
+
+if [ -n "$IP_CIDR" ]; then
+    # Bóc lấy chỉ mỗi phần IP (VD: 10.0.0.20)
+    IP_ONLY=$(echo $IP_CIDR | cut -d'/' -f1)
+    
+    # Xóa IP cũ có mask sai trên eth0
+    ip addr del $IP_CIDR dev eth0
+    
+    # Gán IP đó sang bat0 với Subnet Mask đúng là /24
+    ip addr add $IP_ONLY/24 dev bat0
+fi]]></template>
+      </templates>
+    </service>
+    <service name="IPForward" node="1">
+      <templates>
+        <template name="ipforward.sh"><![CDATA[#!/bin/sh
+
+# 1. Bật card mạng không dây ảo (eth0)
+ip link set up dev eth0
+
+# 2. Tạo interface bat0 và gắn eth0 vào mạng mesh BATMAN
+batctl if add eth0
+ip link set up dev bat0
+
+# 3. Lấy IP tự động được cấp trên eth0
+IP_ADDR=$(ip -4 addr show eth0 | grep inet | awk '{print $2}')
+
+# 4. Chuyển IP từ eth0 sang bat0 để định tuyến L3
+if [ -n "$IP_ADDR" ]; then
+    ip addr del $IP_ADDR dev eth0
+    ip addr add $IP_ADDR dev bat0
+fi]]></template>
+      </templates>
+    </service>
+  </service_configurations>
+  <session_origin lat="47.579166412353516" lon="-122.13232421875" alt="2.0" scale="150.0"/>
+  <session_options>
+    <configuration name="controlnet" value=""/>
+    <configuration name="controlnet0" value=""/>
+    <configuration name="controlnet1" value=""/>
+    <configuration name="controlnet2" value=""/>
+    <configuration name="controlnet3" value=""/>
+    <configuration name="controlnet_updown_script" value=""/>
+    <configuration name="enablerj45" value="1"/>
+    <configuration name="preservedir" value="0"/>
+    <configuration name="enablesdt" value="0"/>
+    <configuration name="sdturl" value="tcp://127.0.0.1:50000/"/>
+    <configuration name="ovs" value="0"/>
+    <configuration name="platform_id_start" value="1"/>
+    <configuration name="nem_id_start" value="1"/>
+    <configuration name="link_enabled" value="1"/>
+    <configuration name="loss_threshold" value="30"/>
+    <configuration name="link_interval" value="1"/>
+    <configuration name="link_timeout" value="4"/>
+    <configuration name="mtu" value="0"/>
+    <configuration name="checksums" value="0"/>
+  </session_options>
+  <session_metadata>
+    <configuration name="edges" value="[]"/>
+    <configuration name="canvas" value="{&quot;gridlines&quot;: true, &quot;canvases&quot;: [{&quot;id&quot;: 1, &quot;wallpaper&quot;: null, &quot;wallpaper_style&quot;: 1, &quot;fit_image&quot;: false, &quot;dimensions&quot;: [1000, 750]}]}"/>
+    <configuration name="hidden" value="[]"/>
+    <configuration name="shapes" value="[]"/>
+  </session_metadata>
+</scenario>

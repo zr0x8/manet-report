@@ -1,0 +1,29 @@
+# --- THIẾT LẬP VỊ TRÍ BAN ĐẦU (Giây 0) ---
+
+# n0 (ID 1 - Node 0): Đứng cố định tại X=100
+$node_(1) set X_ 100.0
+$node_(1) set Y_ 300.0
+$node_(1) set Z_ 0.0
+
+# n1 (ID 2 - Node 1): Đứng cố định tại X=400 (Cách n0 đúng 300m)
+$node_(2) set X_ 400.0
+$node_(2) set Y_ 300.0
+$node_(2) set Z_ 0.0
+
+# n2 (ID 3 - Node 2): Thẳng hàng dọc dưới n0 (X=100)
+$node_(3) set X_ 100.0
+$node_(3) set Y_ 400.0
+$node_(3) set Z_ 0.0
+
+# n3 (ID 4 - Node 3): Bắt đầu tại X=700 (Cách n1 đúng 300m về bên phải)
+$node_(4) set X_ 700.0
+$node_(4) set Y_ 200.0
+$node_(4) set Z_ 0.0
+
+# --- KỊCH BẢN DI CHUYỂN (Bắt đầu từ giây 1.0) ---
+
+# Node 2 (ID 3) chạy sang phải với vận tốc 10m/s. Đích đến X=800.
+$ns_ at 1.0 "$node_(3) setdest 800.0 400.0 10.0"
+
+# Node 3 (ID 4) chạy sang trái với vận tốc 20m/s. Đích đến X=0.
+$ns_ at 1.0 "$node_(4) setdest 0.0 200.0 20.0"
